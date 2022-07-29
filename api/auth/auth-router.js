@@ -52,7 +52,7 @@ function genJwt(user) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 }
 
-router.post("/login", checkUsernameExists, async (req, res, next) => {
+router.post("/login", inputCheck, async (req, res, next) => {
   let { username, password } = req.body;
 
   try {
