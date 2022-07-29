@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Users = require("./users-model");
 const { inputCheck, checkUsernameExists } = require("./auth-middleware");
+const { JWT_SECRET } = require("./secrets");
 
 router.post("/register", inputCheck, checkUsernameExists, (req, res, next) => {
   const { username, password } = req.body;
@@ -48,7 +49,7 @@ function genJwt(user) {
     username: user.username,
   };
 
-  return jwt.sign(payload, "shh", { expiresIn: "1d" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 }
 
 router.post("/login", async (req, res, next) => {
@@ -58,7 +59,8 @@ router.post("/login", async (req, res, next) => {
     const [user] = await Users.findBy({ username });
     if (user && bcrypt.compareSync(password, user.password)) {
       const token = genJwt(user);
-      res.status(200).json({ token, message: `welcome, ${username}` });
+      //res.set("authorization", token);
+      res.status(200).json({ token: token, message: `welcome, ${username}` });
     } else {
       res.status(401).json({ message: "invalid credentials" });
     }
