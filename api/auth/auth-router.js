@@ -52,14 +52,13 @@ function genJwt(user) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 }
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", checkUsernameExists, async (req, res, next) => {
   let { username, password } = req.body;
 
   try {
     const [user] = await Users.findBy({ username });
     if (user && bcrypt.compareSync(password, user.password)) {
       const token = genJwt(user);
-      //res.set("authorization", token);
       res.status(200).json({ token: token, message: `welcome, ${username}` });
     } else {
       res.status(401).json({ message: "invalid credentials" });
